@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
 
   @override
-  State<SignIn> createState() => _SignInState();
+  State<SignUp> createState() => _SignUpState();
 }
 
-class _SignInState extends State<SignIn> {
+class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +38,7 @@ class _SignInState extends State<SignIn> {
                 children: [
                   Center(
                     child: Text(
-                      "SignIn",
+                      "SignUp",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -62,8 +62,9 @@ class _SignInState extends State<SignIn> {
                       elevation: 5.0,
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        height: MediaQuery.of(context).size.height / 2.2,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 30.0),
+                        height: MediaQuery.of(context).size.height / 1.7,
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -72,7 +73,35 @@ class _SignInState extends State<SignIn> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 60),
+                            Text(
+                              "Name",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Container(
+                              padding: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 1.0,
+                                  color: Colors.black38,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  prefixIcon: Icon(
+                                    Icons.mail_outlined,
+                                    color: Color(0xFF7f30fe),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
                             Text(
                               "Email",
                               style: TextStyle(
@@ -132,15 +161,33 @@ class _SignInState extends State<SignIn> {
                               ),
                             ),
                             SizedBox(height: 10),
+                            Text(
+                              "Confirm Password",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(height: 10),
                             Container(
-                              alignment: Alignment.bottomRight,
-                              child: Text(
-                                "Forgot Password?",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
+                              padding: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 1.0,
+                                  color: Colors.black38,
                                 ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  prefixIcon: Icon(
+                                    Icons.password,
+                                    color: Color(0xFF7f30fe),
+                                  ),
+                                ),
+                                obscureText: true,
                               ),
                             ),
                             SizedBox(height: 40),
@@ -157,7 +204,7 @@ class _SignInState extends State<SignIn> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        "Sign In",
+                                        "Sign Up",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
