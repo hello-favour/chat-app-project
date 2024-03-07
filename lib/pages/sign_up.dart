@@ -1,3 +1,4 @@
+import 'package:chat_app_project/pages/home_page.dart';
 import 'package:chat_app_project/service/data_base.dart';
 import 'package:chat_app_project/service/shared_pref.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,7 +33,7 @@ class _SignUpState extends State<SignUp> {
           "name": nameController.text,
           "email": emailController.text,
           "userName": emailController.text.replaceAll("@gmail.com", ""),
-          "Photo": "photo link here",
+          "Photo": "https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000",
           "id": id,
           "password": passwordController.text,
           "confirm password": confrimPasswordController.text,
@@ -42,7 +43,7 @@ class _SignUpState extends State<SignUp> {
         await SharedPreferenceHelper().saveUserId(id);
         await SharedPreferenceHelper().saveUserDisplayName(nameController.text);
         await SharedPreferenceHelper().saveUserEmail(emailController.text);
-        await SharedPreferenceHelper().saveUserPic("photo link here");
+        await SharedPreferenceHelper().saveUserPic("https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000");
         await SharedPreferenceHelper()
             .saveUserName(emailController.text.replaceAll("@gmail.com", ""));
 
@@ -51,6 +52,8 @@ class _SignUpState extends State<SignUp> {
             content: Text("Register Successfully"),
           ),
         );
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Home()));
       } on FirebaseAuthException catch (e) {
         if (e.code == "weak-password") {
           ScaffoldMessenger.of(context).showSnackBar(

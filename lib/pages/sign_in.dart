@@ -1,3 +1,5 @@
+import 'package:chat_app_project/pages/home_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
@@ -8,6 +10,45 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
+  final formKey = GlobalKey<FormState>();
+
+  String email = "", password = "";
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  userLogin() async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Home()));
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "user-not-found") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "No user found for that email",
+              style: TextStyle(
+                fontSize: 18,
+              ),
+            ),
+          ),
+        );
+      } else if (e.code == "Wrong password") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Wrong password provided by user",
+              style: TextStyle(
+                fontSize: 18,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,107 +110,136 @@ class _SignInState extends State<SignIn> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 60),
-                            Text(
-                              "Email",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Container(
-                              padding: EdgeInsets.only(left: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 1.0,
-                                  color: Colors.black38,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  prefixIcon: Icon(
-                                    Icons.mail_outlined,
-                                    color: Color(0xFF7f30fe),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              "Password",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Container(
-                              padding: EdgeInsets.only(left: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 1.0,
-                                  color: Colors.black38,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  prefixIcon: Icon(
-                                    Icons.password,
-                                    color: Color(0xFF7f30fe),
-                                  ),
-                                ),
-                                obscureText: true,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Container(
-                              alignment: Alignment.bottomRight,
-                              child: Text(
-                                "Forgot Password?",
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 60),
+                              Text(
+                                "Email",
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 40),
-                            Center(
-                              child: Container(
-                                width: double.infinity,
-                                child: Material(
-                                  elevation: 5.0,
-                                  child: Container(
-                                    padding: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
+                              SizedBox(height: 10),
+                              Container(
+                                padding: EdgeInsets.only(left: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 1.0,
+                                    color: Colors.black38,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: TextFormField(
+                                  controller: emailController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter Email";
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    prefixIcon: Icon(
+                                      Icons.mail_outlined,
                                       color: Color(0xFF7f30fe),
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        "Sign In",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                "Password",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                padding: EdgeInsets.only(left: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    width: 1.0,
+                                    color: Colors.black38,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: TextFormField(
+                                  controller: emailController,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return "Please enter Password";
+                                    }
+                                    return null;
+                                  },
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    prefixIcon: Icon(
+                                      Icons.password,
+                                      color: Color(0xFF7f30fe),
+                                    ),
+                                  ),
+                                  obscureText: true,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                alignment: Alignment.bottomRight,
+                                child: Text(
+                                  "Forgot Password?",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 40),
+                              GestureDetector(
+                                onTap: () {
+                                  if (formKey.currentState!.validate()) {
+                                    setState(() {
+                                      email = emailController.text;
+                                      password = passwordController.text;
+                                    });
+                                  }
+                                  userLogin();
+                                },
+                                child: Center(
+                                  child: Container(
+                                    width: double.infinity,
+                                    child: Material(
+                                      elevation: 5.0,
+                                      child: Container(
+                                        padding: EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Color(0xFF7f30fe),
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            "Sign In",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
