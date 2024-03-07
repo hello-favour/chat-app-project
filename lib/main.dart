@@ -1,5 +1,5 @@
 import 'package:chat_app_project/firebase_options.dart';
-import 'package:chat_app_project/pages/home_page.dart';
+import 'package:chat_app_project/pages/chat_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Home(),
+      home: const ChatPage(),
     );
   }
 }
