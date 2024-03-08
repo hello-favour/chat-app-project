@@ -52,7 +52,7 @@ class _SignUpState extends State<SignUp> {
         await SharedPreferenceHelper().saveUserPic(
             "https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000");
         await SharedPreferenceHelper()
-            .saveUserName(emailController.text.replaceAll("@gmail.com", ""));
+            .saveUserName(emailController.text.replaceAll("@gmail.com", "").toUpperCase());
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

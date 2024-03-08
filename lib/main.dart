@@ -4,6 +4,7 @@ import 'package:chat_app_project/pages/forgot_password.dart';
 import 'package:chat_app_project/pages/home_page.dart';
 import 'package:chat_app_project/pages/sign_in.dart';
 import 'package:chat_app_project/pages/sign_up.dart';
+import 'package:chat_app_project/service/auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -28,7 +29,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Home(),
+      home: FutureBuilder(
+        future: AuthMethod().getCurrentUser(),
+        builder: (context, AsyncSnapshot<dynamic> snapShot) {
+          if (snapShot.hasData) {
+            return Home();
+          } else {
+            return SignUp();
+          }
+        },
+      ),
     );
   }
 }

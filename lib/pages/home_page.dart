@@ -15,6 +15,7 @@ class _HomeState extends State<Home> {
   bool search = false;
 
   String? myName, myProfilePic, myUserName, myEmail;
+  Stream? chatRoomStream;
 
   getTheSharedPre() async {
     myName = await SharedPreferenceHelper().getUserDisplayName();
@@ -29,9 +30,36 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
+  Widget chatRoomList() {
+    return StreamBuilder(
+      stream: chatRoomStream,
+      builder: (context, snapShot) {
+        return snapShot.hasData
+            ? ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: snapShot.data.docs.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapShot.data.docs[index];
+                  return ChatRoomListTile(
+                    lastMessage: ds["lastMessage"],
+                    chatRoomId: ds.id,
+                    myUsername: myUserName!,
+                    time: ds["lastMessageSendTs"],
+                  );
+                },
+              )
+            : Center(
+                child: CircularProgressIndicator(),
+              );
+      },
+    );
+  }
+
   @override
-  void initState() {
+  void initState() async {
     super.initState();
+    chatRoomStream = await DataBaseCall().getChatRooms();
     ontheload();
   }
 
@@ -179,120 +207,7 @@ class _HomeState extends State<Home> {
                             return buildResultCard(element);
                           }).toList(),
                         )
-                      : Column(
-                          children: [
-                            SizedBox(height: 10),
-                            GestureDetector(
-                              onTap: () {},
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(60),
-                                    child: Image.asset(
-                                      "images/boy.jpg",
-                                      height: 70,
-                                      width: 70,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Shivam Daniel",
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        "Hello, what are you doing?",
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.black45,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Spacer(),
-                                  Text(
-                                    "04:30 PM",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black45,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(60),
-                                  child: Image.asset(
-                                    "images/boy1.jpg",
-                                    height: 70,
-                                    width: 70,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "Shivam Brownson",
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      "Hy, what is going on?",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.black45,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                Text(
-                                  "04:30 PM",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black45,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      : chatRoomList(),
                 ],
               ),
             )
@@ -312,7 +227,7 @@ class _HomeState extends State<Home> {
           "user": [myName, data["username"]],
         };
         await DataBaseCall().createChatRoom(chatRoomId, chatRoomInfoMap);
-       Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => ChatPage(
@@ -371,6 +286,107 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ChatRoomListTile extends StatefulWidget {
+  final String lastMessage, chatRoomId, myUsername, time;
+  const ChatRoomListTile({
+    super.key,
+    required this.lastMessage,
+    required this.chatRoomId,
+    required this.myUsername,
+    required this.time,
+  });
+
+  @override
+  State<ChatRoomListTile> createState() => _ChatRoomListTileState();
+}
+
+class _ChatRoomListTileState extends State<ChatRoomListTile> {
+  String profilePic = "", name = "", username = "", id = "";
+
+  getThisUserInfo() async {
+    username =
+        widget.chatRoomId.replaceAll("_", "").replaceAll(widget.myUsername, "");
+    QuerySnapshot querySnapshot =
+        await DataBaseCall().getUserInfo(username.toUpperCase());
+    name = "${querySnapshot.docs[0]["name"]}";
+    profilePic = "${querySnapshot.docs[0]["photo"]}";
+    id = "${querySnapshot.docs[0]["Id"]}";
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getThisUserInfo();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          profilePic == ""
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(60),
+                  child: Image.network(
+                    profilePic,
+                    height: 70,
+                    width: 70,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+          SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    username,
+                    style: TextStyle(
+                      fontSize: 17,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width / 1.2,
+                child: Text(
+                  widget.lastMessage,
+                  style: TextStyle(
+                    overflow: TextOverflow.ellipsis,
+                    fontSize: 15,
+                    color: Colors.black45,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Spacer(),
+          Text(
+            widget.time,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.black45,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
