@@ -27,8 +27,8 @@ class _SignInState extends State<SignIn> {
       QuerySnapshot querySnapshot = await DataBaseCall().getUserByEmail(email);
 
       name = "${querySnapshot.docs[0]["name"]}";
-      username = "${querySnapshot.docs[0]["userName"]}";
-      pic = "${querySnapshot.docs[0]["Photo"]}";
+      username = "${querySnapshot.docs[0]["username"]}";
+      pic = "${querySnapshot.docs[0]["photo"]}";
       id = querySnapshot.docs[0].id;
 
       await SharedPreferenceHelper().saveUserName(username);

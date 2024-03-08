@@ -37,9 +37,9 @@ class _SignUpState extends State<SignUp> {
         Map<String, dynamic> userInfoMap = {
           "name": nameController.text,
           "email": emailController.text,
-          "userName": updateUserName.toUpperCase(),
-          "SearchKey": firstLetter,
-          "Photo":
+          "username": updateUserName.toUpperCase(),
+          "searchKey": firstLetter,
+          "photo":
               "https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000",
           "id": id,
           // "password": passwordController.text,

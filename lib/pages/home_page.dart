@@ -1,5 +1,6 @@
 import 'package:chat_app_project/pages/chat_page.dart';
 import 'package:chat_app_project/service/data_base.dart';
+import 'package:chat_app_project/service/shared_pref.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,35 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool search = false;
+
+  String? myName, myProfilePic, myUserName, myEmail;
+
+  getTheSharedPre() async {
+    myName = await SharedPreferenceHelper().getUserDisplayName();
+    myProfilePic = await SharedPreferenceHelper().getUserPic();
+    myUserName = await SharedPreferenceHelper().getUserName();
+    myEmail = await SharedPreferenceHelper().getUserEmail();
+    setState(() {});
+  }
+
+  ontheload() async {
+    await getTheSharedPre();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    ontheload();
+  }
+
+  getChatRoomIdbyUsername(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+      return "$b\_$a";
+    } else {
+      return "$a\_$b";
+    }
+  }
 
   var queryResultSet = [];
   var tempSearchStore = [];
@@ -26,8 +56,11 @@ class _HomeState extends State<Home> {
     setState(() {
       search = true;
     });
-    var capitalizedValue =
-        value.substring(0, 1).toUpperCase() + value.subString(1);
+    // var capitalizedValue =
+    //     value.substring(0, 1).toUpperCase() + value.substring(1);
+    var capitalizedValue = value.isNotEmpty
+        ? value.substring(0, 1).toUpperCase() + value.substring(1)
+        : '';
     if (queryResultSet.isEmpty && value.length == 1) {
       DataBaseCall().search(value).then((QuerySnapshot docs) {
         for (int i = 0; i < docs.docs.length; i++) {
@@ -102,10 +135,21 @@ class _HomeState extends State<Home> {
                         color: Color(0xFF3a2144),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Icon(
-                        Icons.search,
-                        color: Color(0xffc199cd),
-                      ),
+                      child: search
+                          ? IconButton(
+                              onPressed: () {
+                                search = false;
+                                setState(() {});
+                              },
+                              icon: Icon(
+                                Icons.close,
+                                color: Color(0xffc199cd),
+                              ),
+                            )
+                          : Icon(
+                              Icons.search,
+                              color: Color(0xffc199cd),
+                            ),
                     ),
                   ),
                 ],
@@ -139,12 +183,7 @@ class _HomeState extends State<Home> {
                           children: [
                             SizedBox(height: 10),
                             GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ChatPage()));
-                              },
+                              onTap: () {},
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
@@ -264,52 +303,72 @@ class _HomeState extends State<Home> {
   }
 
   Widget buildResultCard(data) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      child: Material(
-        elevation: 5.0,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          padding: EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(60),
-                child: Image.network(
-                  data["Photo"],
-                  height: 70,
-                  width: 70,
-                  fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () async {
+        search = false;
+        setState(() {});
+        var chatRoomId = getChatRoomIdbyUsername(myUserName!, data["username"]);
+        Map<String, dynamic> chatRoomInfoMap = {
+          "user": [myName, data["username"]],
+        };
+        await DataBaseCall().createChatRoom(chatRoomId, chatRoomInfoMap);
+       Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ChatPage(
+                    name: data["name"],
+                    profileUrl: data["photo"],
+                    username: data["username"],
+                  )),
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 8),
+        child: Material(
+          elevation: 5.0,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            padding: EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(60),
+                  child: Image.network(
+                    data["Photo"],
+                    height: 70,
+                    width: 70,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-              SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data["name"],
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                SizedBox(width: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data["name"],
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    data["username"],
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                    SizedBox(height: 8),
+                    Text(
+                      data["username"],
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:chat_app_project/firebase_options.dart';
 import 'package:chat_app_project/pages/chat_page.dart';
 import 'package:chat_app_project/pages/forgot_password.dart';
+import 'package:chat_app_project/pages/home_page.dart';
 import 'package:chat_app_project/pages/sign_in.dart';
 import 'package:chat_app_project/pages/sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ForgotPassword(),
+      home: const Home(),
     );
   }
 }
