@@ -1,4 +1,5 @@
 import 'package:chat_app_project/pages/home_page.dart';
+import 'package:chat_app_project/pages/sign_in.dart';
 import 'package:chat_app_project/service/data_base.dart';
 import 'package:chat_app_project/service/shared_pref.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,22 +29,28 @@ class _SignUpState extends State<SignUp> {
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
         String id = randomAlphaNumeric(10);
+        String user = emailController.text.replaceAll("@gmail.com", "");
+        String updateUserName =
+            user.replaceFirst(user[0], user[0].toUpperCase());
+        String firstLetter = user.substring(0, 1).toUpperCase();
 
         Map<String, dynamic> userInfoMap = {
           "name": nameController.text,
           "email": emailController.text,
-          "userName": emailController.text.replaceAll("@gmail.com", ""),
-          "Photo": "https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000",
+          "userName": updateUserName.toUpperCase(),
+          "SearchKey": firstLetter,
+          "Photo":
+              "https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000",
           "id": id,
-          "password": passwordController.text,
-          "confirm password": confrimPasswordController.text,
+          // "password": passwordController.text,
+          // "confirm password": confrimPasswordController.text,
         };
-
         await DataBaseCall().addUserDetails(userInfoMap, id);
         await SharedPreferenceHelper().saveUserId(id);
         await SharedPreferenceHelper().saveUserDisplayName(nameController.text);
         await SharedPreferenceHelper().saveUserEmail(emailController.text);
-        await SharedPreferenceHelper().saveUserPic("https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000");
+        await SharedPreferenceHelper().saveUserPic(
+            "https://variety.com/wp-content/uploads/2023/06/avatar-1.jpg?w=1000");
         await SharedPreferenceHelper()
             .saveUserName(emailController.text.replaceAll("@gmail.com", ""));
 
@@ -338,18 +345,26 @@ class _SignUpState extends State<SignUp> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Don't have an account?",
+                        "You have an account?",
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.black,
                         ),
                       ),
-                      Text(
-                        "Sign up Now!",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF7f30fe),
-                          fontWeight: FontWeight.w500,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SignIn()));
+                        },
+                        child: Text(
+                          "Sign in Now!",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF7f30fe),
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
